@@ -5,4 +5,4 @@ You can get detailed information from [QT Documentation](https://doc.qt.io/qt-5/
 
 ##Now let's talk about using our own custom model-view widget.
 
-![alt text](https://ibb.co/7YF2C15)
+![Untitled](https://user-images.githubusercontent.com/73167603/145189276-9f9712ac-a62c-44e8-aea1-00ba19f1a4ba.png)
