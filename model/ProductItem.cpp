@@ -105,7 +105,9 @@ void ProductItem::modifyJsonValue(QJsonValue &in_destination_value, const QStrin
     const int index_of_square_bracket_open = in_path.indexOf('[');
     const int index_of_square_bracket_close = in_path.indexOf(']');
 
-    const int array_index = in_path.midRef(index_of_square_bracket_open + 1, index_of_square_bracket_close - index_of_square_bracket_open - 1).toInt();
+    const int array_index = QStringView{in_path}.mid(index_of_square_bracket_open + 1,
+                                                     index_of_square_bracket_close - index_of_square_bracket_open - 1)
+                                .toInt();
     const QString square_bracket_property_name = in_path.left(index_of_square_bracket_open);
     const QString square_bracket_sub_path = index_of_square_bracket_close > 0 ? (in_path.mid(index_of_square_bracket_close + 1)[0] == '.' ? in_path.mid(index_of_square_bracket_close + 2) : in_path.mid(index_of_square_bracket_close + 1)) : QString();
 

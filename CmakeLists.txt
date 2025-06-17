@@ -1,0 +1,53 @@
+cmake_minimum_required(VERSION 3.16)
+
+project(ProductApp LANGUAGES CXX)
+
+set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+
+# Enable automatic MOC, UIC, RCC handling
+set(CMAKE_AUTOMOC ON)
+set(CMAKE_AUTOUIC ON)
+set(CMAKE_AUTORCC ON)
+
+# Find Qt6 modules
+find_package(Qt6 REQUIRED COMPONENTS Widgets)
+
+# Source files
+set(SOURCES
+    main.cpp
+    MainWindow.cpp
+    ProductDelegate.cpp
+    ProductItem.cpp
+    ProductModel.cpp
+    ProductObject.cpp
+    ProductTableWidget.cpp
+)
+
+# Header files (for IDEs and moc)
+set(HEADERS
+    MainWindow.h
+    ProductDelegate.h
+    ProductItem.h
+    ProductModel.h
+    ProductObject.h
+    ProductTableWidget.h
+)
+
+# UI files
+set(UIS
+    MainWindow.ui
+)
+
+# Add the executable
+add_executable(${PROJECT_NAME}
+    ${SOURCES}
+    ${HEADERS}
+    ${UIS}
+)
+
+# Link Qt6 libraries
+target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets)
+
+# Include current directory for headers
+target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
