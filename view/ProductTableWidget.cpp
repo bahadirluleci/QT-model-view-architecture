@@ -15,10 +15,10 @@
 //////////////////////////////////////////////////////////////////////////
 ProductTableWidget::ProductTableWidget(QWidget *in_p_parent) : QWidget(in_p_parent)
 {
-    m_p_vlayout     = new QVBoxLayout(in_p_parent);
-    m_p_table       = new QTableView(in_p_parent);
-    m_p_model       = new ProductModel(in_p_parent);
-    m_p_delegate    = new ProductDelegate(in_p_parent);
+    m_p_vlayout     = new QVBoxLayout(this);
+    m_p_table       = new QTableView(this);
+    m_p_model       = new ProductModel(this);
+    m_p_delegate    = new ProductDelegate(this);
 
     initialize();
 }

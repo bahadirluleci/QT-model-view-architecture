@@ -1,61 +1,67 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
-//////////////////////////////////////////////////////////////////////////
-// includes
-//////////////////////////////////////////////////////////////////////////
-#include <QMainWindow>
 
-//////////////////////////////////////////////////////////////////////////
-// namespace
-//////////////////////////////////////////////////////////////////////////
-class QVBoxLayout;
-class QTextEdit;
+#include <QMainWindow>
+#include <QTabWidget>
+#include <QVBoxLayout>
+#include <QTextEdit>
+#include <vector>
+#include "ui_MainWindow.h"
+
 class ProductObject;
 class ProductTableWidget;
 
-QT_BEGIN_NAMESPACE
-namespace Ui
-{
+namespace Ui {
 class MainWindow;
-
 }
-QT_END_NAMESPACE
-//////////////////////////////////////////////////////////////////////////
-///
-/// \brief      It contains all gui elements
-///
-//////////////////////////////////////////////////////////////////////////
+
+/**
+ * @class MainWindow
+ * @brief Main application window containing all GUI components.
+ *
+ * The MainWindow class is responsible for managing the central interface,
+ * including tab views, layout setup, file selection dialogs, and JSON data display.
+ */
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-
-    enum Tabs
-    {
-        LoadAndSavePage = 0 ,
-        TableWidgetPage,
+    /// @brief Tab indices used in the main interface.
+    enum Tabs {
+        LoadAndSavePage = 0,
+        TableWidgetPage
     };
 
-    MainWindow(QWidget *parent = nullptr);
-    ~MainWindow();
+    explicit MainWindow(QWidget* parent = nullptr);
+    ~MainWindow() = default;
 
-    void createTabs();
 private slots:
-    void            slotBrowseClicked     ();
-    void            slotLoadClicked       ();
-    void            slotSaveClicked       ();
+    /// @brief Triggered when the "Browse" button is clicked.
+    void onBrowseClicked();
+
+    /// @brief Triggered when the "Load" button is clicked.
+    void onLoadClicked();
+
+    /// @brief Triggered when the "Save" button is clicked.
+    void onSaveClicked();
 
 private:
-    Ui::MainWindow *ui;
-    QTabWidget*         m_p_tab                     = nullptr;           ///<	central widget
-    QVBoxLayout*        m_p_main_layout             = nullptr;      ///<    the main window layout
-    QVBoxLayout*        m_param_table_layout        = nullptr;      ///<    table window layout
-    QTextEdit*          m_p_text_edit               = nullptr;      ///<   shows json datas
-    std::vector<QWidget*> m_widgets_list;                           ///<    vector of the widget pointers
-    QString             m_file_path;                                ///<    holds file path
-    ProductObject*  m_p_product_json_object         = nullptr;       ///<    product json obj
-    ProductTableWidget* m_p_product_table_widget    = nullptr;      ///<    widget which contains table in second page
+    /// @brief Initializes the tab structure inside the main window.
+    void createTabs();
 
+private:
+    std::unique_ptr<Ui::MainWindow> ui;
+
+    QTabWidget* tabWidget = nullptr;                  ///< Central widget containing application tabs.
+    QVBoxLayout* mainLayout = nullptr;                ///< Main layout of the window.
+    QTextEdit* textEdit = nullptr;                    ///< Displays JSON data as plain text.
+
+    std::vector<QWidget*> tabWidgets;                 ///< List of dynamically created widgets.
+    QString filePath;                                 ///< Stores the selected file path.
+
+    ProductObject* productJsonObject = nullptr;       ///< Object containing parsed JSON product data.
+    ProductTableWidget* productTableWidget = nullptr; ///< Widget representing the product table on second tab.
 };
+
 #endif // MAINWINDOW_H
