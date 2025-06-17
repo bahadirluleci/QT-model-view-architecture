@@ -5,49 +5,54 @@ project(ProductApp LANGUAGES CXX)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# Enable automatic MOC, UIC, RCC handling
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-# Find Qt6 modules
 find_package(Qt6 REQUIRED COMPONENTS Widgets)
 
-# Source files
-set(SOURCES
-    main.cpp
-    MainWindow.cpp
-    ProductDelegate.cpp
-    ProductItem.cpp
-    ProductModel.cpp
-    ProductObject.cpp
-    ProductTableWidget.cpp
+set(SRC_MAIN main.cpp)
+
+set(SRC_UI
+    ui/MainWindow.cpp
+    ui/MainWindow.h
+    ui/MainWindow.ui
 )
 
-# Header files (for IDEs and moc)
-set(HEADERS
-    MainWindow.h
-    ProductDelegate.h
-    ProductItem.h
-    ProductModel.h
-    ProductObject.h
-    ProductTableWidget.h
+set(SRC_MODEL
+    model/ProductModel.cpp
+    model/ProductModel.h
+    model/ProductItem.cpp
+    model/ProductItem.h
+    model/ProductObject.cpp
+    model/ProductObject.h
 )
 
-# UI files
-set(UIS
-    MainWindow.ui
+set(SRC_VIEW
+    view/ProductTableWidget.cpp
+    view/ProductTableWidget.h
 )
 
-# Add the executable
+set(SRC_DELEGATE
+    delegate/ProductDelegate.cpp
+    delegate/ProductDelegate.h
+)
+
 add_executable(${PROJECT_NAME}
-    ${SOURCES}
-    ${HEADERS}
-    ${UIS}
+    ${SRC_MAIN}
+    ${SRC_UI}
+    ${SRC_MODEL}
+    ${SRC_VIEW}
+    ${SRC_DELEGATE}
 )
 
-# Link Qt6 libraries
+
 target_link_libraries(${PROJECT_NAME} PRIVATE Qt6::Widgets)
 
-# Include current directory for headers
-target_include_directories(${PROJECT_NAME} PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
+target_include_directories(${PROJECT_NAME}
+    PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/ui
+    ${CMAKE_CURRENT_SOURCE_DIR}/model
+    ${CMAKE_CURRENT_SOURCE_DIR}/view
+    ${CMAKE_CURRENT_SOURCE_DIR}/delegate
+)
