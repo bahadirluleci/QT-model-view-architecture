@@ -16,8 +16,8 @@
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent),
     ui(std::make_unique<Ui::MainWindow>()),
-    productJsonObject(new ProductObject(this)),
-    productTableWidget(new ProductTableWidget(this))
+    m_productJsonObject(new ProductObject(this)),
+    m_productTableWidget(new ProductTableWidget(this))
 {
     ui->setupUi(this);
 
@@ -27,33 +27,33 @@ MainWindow::MainWindow(QWidget *parent)
 
 void MainWindow::createTabs()
 {
-    tabWidget = new QTabWidget(this);
-    setCentralWidget(tabWidget);
-    tabWidget->setObjectName("CentralTab");
+    m_tabWidget = new QTabWidget(this);
+    setCentralWidget(m_tabWidget);
+    m_tabWidget->setObjectName("CentralTab");
 
     // Tab 1: Load and Save
     QFrame* frame = new QFrame(this);
-    mainLayout = new QVBoxLayout();
-    frame->setLayout(mainLayout);
+    m_mainLayout = new QVBoxLayout();
+    frame->setLayout(m_mainLayout);
 
     auto* browseButton = new QPushButton("Browse...", this);
     auto* loadButton = new QPushButton("Load...", this);
     auto* saveButton = new QPushButton("Save...", this);
 
-    textEdit = new QTextEdit(this);
-    textEdit->setReadOnly(true);
+    m_textEdit = new QTextEdit(this);
+    m_textEdit->setReadOnly(true);
 
-    mainLayout->addWidget(browseButton);
-    mainLayout->addWidget(loadButton);
-    mainLayout->addWidget(textEdit);
-    mainLayout->addWidget(saveButton);
+    m_mainLayout->addWidget(browseButton);
+    m_mainLayout->addWidget(loadButton);
+    m_mainLayout->addWidget(m_textEdit);
+    m_mainLayout->addWidget(saveButton);
 
-    tabWidgets.push_back(frame);
-    tabWidget->insertTab(Tabs::LoadAndSavePage, tabWidgets[Tabs::LoadAndSavePage], "Load and Save");
+    m_tabWidgets.push_back(frame);
+    m_tabWidget->insertTab(Tabs::LoadAndSavePage, m_tabWidgets[Tabs::LoadAndSavePage], "Load and Save");
 
     // Second tab: Table
-    tabWidgets.push_back(productTableWidget);
-    tabWidget->insertTab(Tabs::TableWidgetPage, tabWidgets[Tabs::TableWidgetPage], "Product Table");
+    m_tabWidgets.push_back(m_productTableWidget);
+    m_tabWidget->insertTab(Tabs::TableWidgetPage, m_tabWidgets[Tabs::TableWidgetPage], "Product Table");
 
     // button connections
     connect(browseButton, &QPushButton::clicked, this, &MainWindow::onBrowseClicked);
@@ -63,32 +63,32 @@ void MainWindow::createTabs()
 
 void MainWindow::onBrowseClicked()
 {
-    filePath = QFileDialog::getOpenFileName(this, tr("Open Configuration File"),
+    m_filePath = QFileDialog::getOpenFileName(this, tr("Open Configuration File"),
                                             QDir::homePath(), tr("JSON Files (*.json)"));
 }
 
 
 void MainWindow::onLoadClicked()
 {
-    if (filePath.isEmpty() || !productJsonObject)
+    if (m_filePath.isEmpty() || !m_productJsonObject)
         return;
 
-    productJsonObject->load(filePath);
+    m_productJsonObject->load(m_filePath);
 
-    QJsonDocument doc(productJsonObject->getProductObject());
-    textEdit->setText(doc.toJson());
+    QJsonDocument doc(m_productJsonObject->getProductObject());
+    m_textEdit->setText(doc.toJson());
 
 
-    if (productTableWidget)
-        productTableWidget->setData(productJsonObject->getProductObject());
+    if (m_productTableWidget)
+        m_productTableWidget->setData(m_productJsonObject->getProductObject());
 
-    filePath.clear();
+    m_filePath.clear();
 
 }
 
 void MainWindow::onSaveClicked()
 {
-    if (!productTableWidget)
+    if (!m_productTableWidget)
         return;
 
     QString savePath = QFileDialog::getSaveFileName(this, tr("Save File"),
@@ -103,7 +103,7 @@ void MainWindow::onSaveClicked()
         return;
     }
 
-    QJsonDocument doc(productTableWidget->data());
+    QJsonDocument doc(m_productTableWidget->data());
     file.write(doc.toJson());
     file.close();
 }

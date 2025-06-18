@@ -53,15 +53,15 @@ private:
 private:
     std::unique_ptr<Ui::MainWindow> ui;
 
-    QTabWidget* tabWidget = nullptr;                  ///< Central widget containing application tabs.
-    QVBoxLayout* mainLayout = nullptr;                ///< Main layout of the window.
-    QTextEdit* textEdit = nullptr;                    ///< Displays JSON data as plain text.
+    QTabWidget* m_tabWidget = nullptr;                  ///< Central widget containing application tabs.
+    QVBoxLayout* m_mainLayout = nullptr;                ///< Main layout of the window.
+    QTextEdit* m_textEdit = nullptr;                    ///< Displays JSON data as plain text.
 
-    std::vector<QWidget*> tabWidgets;                 ///< List of dynamically created widgets.
-    QString filePath;                                 ///< Stores the selected file path.
+    std::vector<QWidget*> m_tabWidgets;                 ///< List of dynamically created widgets.
+    QString m_filePath;                                 ///< Stores the selected file path.
 
-    ProductObject* productJsonObject = nullptr;       ///< Object containing parsed JSON product data.
-    ProductTableWidget* productTableWidget = nullptr; ///< Widget representing the product table on second tab.
+    ProductObject* m_productJsonObject = nullptr;       ///< Object containing parsed JSON product data.
+    ProductTableWidget* m_productTableWidget = nullptr; ///< Widget representing the product table on second tab.
 };
 
 #endif // MAINWINDOW_H

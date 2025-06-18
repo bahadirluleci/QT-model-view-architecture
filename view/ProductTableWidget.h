@@ -1,43 +1,64 @@
 #ifndef PRODUCTTABLEWIDGET_H
 #define PRODUCTTABLEWIDGET_H
 
-//////////////////////////////////////////////////////////////////////////
-/// includes
-//////////////////////////////////////////////////////////////////////////
 #include <QWidget>
 #include <QJsonObject>
-//////////////////////////////////////////////////////////////////////////
-/// forward declarations
-/////////////////////////////////////////////////////////////////////////////
-class ProductModel;
-class QTableView;
-class ProductDelegate;
-class QVBoxLayout;
 
-//////////////////////////////////////////////////////////////////////////
-///
-/// \brief      A custom widget includes a table widget and its models
-///
-//////////////////////////////////////////////////////////////////////////
+// Forward declarations
+class QVBoxLayout;
+class QTableView;
+class ProductModel;
+class ProductDelegate;
+
+/**
+ * @class ProductTableWidget
+ * @brief Custom QWidget that displays and edits JSON data using a table view (MVC pattern).
+ */
 class ProductTableWidget : public QWidget
 {
     Q_OBJECT
-public:
-    explicit ProductTableWidget     (QWidget *in_p_parent = nullptr);
-    ~ProductTableWidget             ();
-    void        initialize          ();
-    void        setData             (QJsonObject in_data);
-    void        setModel            (ProductModel *in_p_model);
-    QJsonObject data                ();
 
-signals:
+public:
+    /**
+     * @brief Constructor
+     * @param parent Parent widget
+     */
+    explicit ProductTableWidget(QWidget* parent = nullptr);
+
+    /**
+     * @brief Destructor
+     */
+    ~ProductTableWidget() = default;
+
+    /**
+     * @brief Loads JSON data into the table model.
+     * @param data JSON object to be displayed
+     */
+    void setData(const QJsonObject& data);
+
+    /**
+     * @brief Sets a custom model for the table view.
+     * @param model Pointer to a ProductModel instance
+     */
+    void setModel(ProductModel* model);
+
+    /**
+     * @brief Retrieves the current JSON data from the model.
+     * @return QJsonObject representing the current data
+     */
+    QJsonObject data() const;
 
 private:
-    QTableView*                     m_p_table       = nullptr;  ///<    Table view (model based)
-    QJsonObject                     m_project_json_object;
-    ProductModel*                   m_p_model       = nullptr;  ///<    model/view
-    ProductDelegate*                m_p_delegate    = nullptr;  ///<    delegate in model/view
-    QVBoxLayout*                    m_p_vlayout     = nullptr;  ///<    layout for tablewidget
+    /**
+     * @brief Initializes the layout and view configuration.
+     */
+    void initialize();
+
+    QTableView*      m_tableView = nullptr;    ///< Table view for displaying product data
+    QVBoxLayout*     m_layout = nullptr;       ///< Main layout of the widget
+    ProductModel*    m_model = nullptr;        ///< Model containing JSON data
+    ProductDelegate* m_delegate = nullptr;     ///< Delegate for cell rendering/editing
+    QJsonObject      m_jsonData;               ///< Holds the raw JSON object
 };
 
 #endif // PRODUCTTABLEWIDGET_H
