@@ -22,6 +22,9 @@ MainWindow::MainWindow(QWidget *parent)
     ui->setupUi(this);
 
     createTabs();
+
+    statusBar()->showMessage("Ready");
+
 }
 
 
@@ -36,15 +39,14 @@ void MainWindow::createTabs()
     m_mainLayout = new QVBoxLayout();
     frame->setLayout(m_mainLayout);
 
-    auto* browseButton = new QPushButton("Browse...", this);
-    auto* loadButton = new QPushButton("Load...", this);
+    auto* browseButton = new QPushButton("Load Product File", this);
     auto* saveButton = new QPushButton("Save...", this);
 
     m_textEdit = new QTextEdit(this);
     m_textEdit->setReadOnly(true);
 
     m_mainLayout->addWidget(browseButton);
-    m_mainLayout->addWidget(loadButton);
+    //m_mainLayout->addWidget(loadButton);
     m_mainLayout->addWidget(m_textEdit);
     m_mainLayout->addWidget(saveButton);
 
@@ -56,35 +58,29 @@ void MainWindow::createTabs()
     m_tabWidget->insertTab(Tabs::TableWidgetPage, m_tabWidgets[Tabs::TableWidgetPage], "Product Table");
 
     // button connections
-    connect(browseButton, &QPushButton::clicked, this, &MainWindow::onBrowseClicked);
-    connect(loadButton, &QPushButton::clicked, this, &MainWindow::onLoadClicked);
+    connect(browseButton, &QPushButton::clicked, this, &MainWindow::onLoadProductClicked);
     connect(saveButton, &QPushButton::clicked, this, &MainWindow::onSaveClicked);
 }
 
-void MainWindow::onBrowseClicked()
+void MainWindow::onLoadProductClicked()
 {
+
     m_filePath = QFileDialog::getOpenFileName(this, tr("Open Configuration File"),
-                                            QDir::homePath(), tr("JSON Files (*.json)"));
-}
+                                       QDir::homePath(), tr("JSON Files (*.json)"));
 
-
-void MainWindow::onLoadClicked()
-{
     if (m_filePath.isEmpty() || !m_productJsonObject)
         return;
 
     m_productJsonObject->load(m_filePath);
-
     QJsonDocument doc(m_productJsonObject->getProductObject());
     m_textEdit->setText(doc.toJson());
-
 
     if (m_productTableWidget)
         m_productTableWidget->setData(m_productJsonObject->getProductObject());
 
-    m_filePath.clear();
-
+    statusBar()->showMessage("Loaded: " + QFileInfo(m_filePath).fileName());
 }
+
 
 void MainWindow::onSaveClicked()
 {

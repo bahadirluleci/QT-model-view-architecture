@@ -1,85 +1,43 @@
 //////////////////////////////////////////////////////////////////////////
-//includes
+/// \file ProductItem.cpp
+/// \brief Implementation of ProductItem class
 //////////////////////////////////////////////////////////////////////////
+
 #include "ProductItem.h"
+
 #include <QJsonObject>
 #include <QJsonArray>
 #include <QDebug>
 
-//////////////////////////////////////////////////////////////////////////
-///
-/// \brief  Constructor
-///
-//////////////////////////////////////////////////////////////////////////
-ProductItem::ProductItem(
-                        int in_role,
-                        QVariant in_value
-                        ):
-                        QStandardItem(),
-                        m_role(in_role),
-                        m_value(in_value)
-{
+ProductItem::ProductItem(int in_role, QVariant in_value)
+    : QStandardItem(), m_role(in_role), m_value(std::move(in_value)) {}
 
-}
-
-//////////////////////////////////////////////////////////////////////////
-///
-/// \brief      get role
-/// \return     int
-///
-int ProductItem::role() const
-{
+int ProductItem::role() const {
     return m_role;
 }
 
-//////////////////////////////////////////////////////////////////////////
-///
-/// \brief      set value in item
-/// \param[in]  in_value   ... given value
-/// \param[in]  in_role   ...  given role
-/// \return     void
-///
-//////////////////////////////////////////////////////////////////////////
-void ProductItem::setData(const QVariant &in_value, int32_t in_role)
-{
-    if (Qt::EditRole == in_role)
-    {
+void ProductItem::setData(const QVariant &in_value, int32_t in_role) {
+    if (in_role == Qt::EditRole) {
         m_value = in_value;
     }
 }
-//////////////////////////////////////////////////////////////////////////
-///
-/// \brief      get data
-/// \param[out] in_role   ...  given role
-/// \return     QVariant
-///
-//////////////////////////////////////////////////////////////////////////
-QVariant ProductItem::data(int32_t in_role) const
-{
-    if ((in_role == Qt::DisplayRole) || (in_role == Qt::EditRole) ||
-        (in_role == Roles::Data))
-    {
+
+QVariant ProductItem::data(int32_t in_role) const {
+    if (in_role == Qt::DisplayRole || in_role == Qt::EditRole || in_role == Roles::Data) {
         return m_value;
-    };
-    return QVariant();
+    }
+    return {};
 }
-//////////////////////////////////////////////////////////////////////////
-///
-/// \brief      modify bool value inside json
-/// \param[in]  in_value    ... new value
-/// \return     void
-///
-//////////////////////////////////////////////////////////////////////////
-void ProductItem::setValue(bool in_value)
-{
+
+void ProductItem::setValue(bool in_value) {
     QJsonValue available_value = QJsonValue::fromVariant(m_value);
     QString json_path = "product.available";
-    QJsonValue new_value = QJsonValue(in_value);
+    QJsonValue new_value(in_value);
     modifyJsonValue(available_value, json_path, new_value);
     m_value = QVariant(available_value);
 }
 
-
+/*
 //////////////////////////////////////////////////////////////////////////
 ///
 /// \brief      changes old json value in desired json path with new value
@@ -183,4 +141,86 @@ void ProductItem::modifyJsonValue(QJsonValue &in_destination_value, const QStrin
     }
     else
         in_destination_value = in_new_value;
+}
+*/
+
+namespace {
+
+struct PathToken {
+    QString key;
+    std::optional<int> arrayIndex;
+};
+
+// Parses "a[0].b[2].c" into PathTokens
+QVector<PathToken> parsePath(const QString& path) {
+    QVector<PathToken> tokens;
+    QString current;
+    for (int i = 0; i < path.size(); ++i) {
+        if (path[i] == '.' || path[i] == '[') {
+            if (!current.isEmpty()) {
+                tokens.push_back({ current, std::nullopt });
+                current.clear();
+            }
+
+            if (path[i] == '[') {
+                int close = path.indexOf(']', i);
+                if (close > i + 1) {
+                    int index = path.mid(i + 1, close - i - 1).toInt();
+                    tokens.last().arrayIndex = index;
+                    i = close;
+                }
+            }
+        } else {
+            current += path[i];
+        }
+    }
+
+    if (!current.isEmpty())
+        tokens.push_back({ current, std::nullopt });
+
+    return tokens;
+}
+
+// Navigates to the JsonValue pointer based on path tokens
+QJsonValue* navigate(QJsonValue& value, const QVector<PathToken>& tokens, int depth = 0) {
+    if (depth >= tokens.size())
+        return &value;
+
+    const auto& token = tokens[depth];
+
+    if (value.isObject()) {
+        QJsonObject obj = value.toObject();
+        QJsonValue child = obj.value(token.key);
+
+        QJsonValue* result = navigate(child, tokens, depth + 1);
+
+        // Reinsert modified value
+        obj[token.key] = child;
+        value = obj;
+        return result;
+    } else if (value.isArray() && token.arrayIndex.has_value()) {
+        QJsonArray arr = value.toArray();
+        int idx = token.arrayIndex.value();
+
+        if (idx < 0 || idx >= arr.size())
+            return nullptr;
+
+        QJsonValue child = arr[idx];
+        QJsonValue* result = navigate(child, tokens, depth + 1);
+        arr[idx] = child;
+        value = arr;
+        return result;
+    }
+
+    return nullptr;
+}
+
+} // namespace
+
+/// Modify a JSON value at the given path
+void ProductItem::modifyJsonValue(QJsonValue& root, const QString& path, const QJsonValue& newValue) {
+    QVector<PathToken> tokens = parsePath(path);
+    QJsonValue* target = navigate(root, tokens);
+    if (target)
+        *target = newValue;
 }

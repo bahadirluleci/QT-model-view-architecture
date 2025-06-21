@@ -38,10 +38,10 @@ public:
 
 private slots:
     /// @brief Triggered when the "Browse" button is clicked.
-    void onBrowseClicked();
+    void onLoadProductClicked();
 
     /// @brief Triggered when the "Load" button is clicked.
-    void onLoadClicked();
+    //void onLoadClicked();
 
     /// @brief Triggered when the "Save" button is clicked.
     void onSaveClicked();
