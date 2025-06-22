@@ -1,10 +1,15 @@
 #include "ProductDelegate.h"
-#include <QList>
-#include <QJsonObject>
 #include "ProductModel.h"
 #include "ProductItem.h"
 #include "Constants.h"
+
+#include <QList>
+#include <QJsonObject>
 #include <QCheckBox>
+#include <QStyleOptionButton>
+#include <QMouseEvent>
+#include <QApplication>
+
 
 
 ProductDelegate::ProductDelegate(QObject *in_p_parent) : QStyledItemDelegate(in_p_parent)
@@ -12,54 +17,55 @@ ProductDelegate::ProductDelegate(QObject *in_p_parent) : QStyledItemDelegate(in_
 
 }
 
-QWidget *ProductDelegate::createEditor(QWidget *in_p_parent, const QStyleOptionViewItem &in_option, const QModelIndex &in_index) const
+QWidget *ProductDelegate::createEditor(QWidget *, const QStyleOptionViewItem &, const QModelIndex &) const
 {
-    if(in_index.column() == ProductModel::Column::Value)
-    {
-       QCheckBox *p_checkbox_editor = new QCheckBox(in_p_parent);
-       return p_checkbox_editor;
-    }
-    else
-        return QStyledItemDelegate::createEditor(in_p_parent, in_option, in_index);
+    return nullptr;  // No editor for checkboxes — handle directly
 }
 
-void ProductDelegate::setEditorData(QWidget *in_p_editor, const QModelIndex &in_index) const
-{
 
-    if(in_index.column() == ProductModel::Column::Value)
+void ProductDelegate::paint(QPainter *in_painter, const QStyleOptionViewItem &in_option, const QModelIndex &in_index) const
+{
+    if (in_index.column() == ProductModel::Column::Value)
     {
-        QModelIndex col_zero_index = in_index.sibling(in_index.row(), ProductModel::Column::ProductId);
-        QVariant data_stored = col_zero_index.data(ProductItem::Roles::Data);
-        const QJsonObject product_object = QJsonValue::fromVariant( data_stored ).toObject();
-        bool value = product_object[qstr(ProductKeys::Product)].toObject()[qstr(ProductKeys::Available)].toBool();
-        QCheckBox *checkbox = static_cast<QCheckBox *>(in_p_editor);
-        checkbox->setChecked(value);
+        QModelIndex idIndex = in_index.sibling(in_index.row(), ProductModel::Column::ProductId);
+        QJsonObject json = QJsonValue::fromVariant(idIndex.data(ProductItem::Data)).toObject();
+        bool checked = json[qstr(ProductKeys::Product)].toObject()[qstr(ProductKeys::Available)].toBool();
+
+        QStyleOptionButton checkboxOption;
+        checkboxOption.state |= QStyle::State_Enabled;
+        checkboxOption.state |= checked ? QStyle::State_On : QStyle::State_Off;
+        checkboxOption.rect = in_option.rect;
+
+        QApplication::style()->drawControl(QStyle::CE_CheckBox, &checkboxOption, in_painter);
     }
     else
-        return QStyledItemDelegate::setEditorData(in_p_editor, in_index);
-}
-
-void ProductDelegate::setModelData(QWidget *in_p_editor, QAbstractItemModel *in_p_model, const QModelIndex &in_index) const
-{
-    if(in_index.column() == ProductModel::Column::Value)
     {
-        QCheckBox *checkbox = static_cast<QCheckBox *>(in_p_editor);
-        bool value = checkbox->isChecked();
-        in_p_model->setData(in_index, value, Qt::EditRole);
+        QStyledItemDelegate::paint(in_painter, in_option, in_index);
     }
-    else
-        QStyledItemDelegate::setModelData(in_p_editor,in_p_model,in_index);
 }
 
-void ProductDelegate::updateEditorGeometry(QWidget *in_p_editor, const QStyleOptionViewItem &in_option, const QModelIndex &in_index) const
+bool ProductDelegate::editorEvent(QEvent *in_event, QAbstractItemModel *in_model,
+                                  const QStyleOptionViewItem &in_option, const QModelIndex &in_index)
 {
-    Q_UNUSED(in_index);
-    if (Q_NULLPTR != in_p_editor)
-        in_p_editor->setGeometry(in_option.rect);
+    if (in_index.column() == ProductModel::Column::Value &&
+        (in_event->type() == QEvent::MouseButtonRelease || in_event->type() == QEvent::MouseButtonDblClick))
+    {
+        QMouseEvent *mouseEvent = static_cast<QMouseEvent *>(in_event);
+        if (in_option.rect.contains(mouseEvent->pos()))
+        {
+            QModelIndex idIndex = in_index.sibling(in_index.row(), ProductModel::Column::ProductId);
+            QJsonObject json = QJsonValue::fromVariant(idIndex.data(ProductItem::Data)).toObject();
+            bool checked = json["product"].toObject()["available"].toBool();
+
+            return in_model->setData(in_index, !checked, Qt::EditRole);
+        }
+    }
+
+    return QStyledItemDelegate::editorEvent(in_event, in_model, in_option, in_index);
 }
 
 QSize ProductDelegate::sizeHint(const QStyleOptionViewItem &in_option, const QModelIndex &in_index) const
 {
     return QStyledItemDelegate::sizeHint(in_option, in_index).
-            expandedTo(QSize(200,in_option.fontMetrics.height() + 10));
+        expandedTo(QSize(200,in_option.fontMetrics.height() + 10));
 }

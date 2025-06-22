@@ -90,16 +90,22 @@ void MainWindow::onSaveClicked()
     QString savePath = QFileDialog::getSaveFileName(this, tr("Save File"),
                                                     QDir::homePath(), tr("JSON Files (*.json)"));
 
-    if (savePath.isEmpty())
+    if (savePath.isEmpty()){
+        statusBar()->showMessage( "Save Path is empty.");
         return;
+    }
 
     QFile file(savePath);
     if (!file.open(QIODevice::WriteOnly)) {
-        qWarning() << "Unable to open file for writing.";
+        statusBar()->showMessage( "Unable to open file for writing.");
         return;
     }
 
     QJsonDocument doc(m_productTableWidget->data());
+    m_textEdit->setText(doc.toJson());
     file.write(doc.toJson());
     file.close();
+    statusBar()->showMessage( "File Saved");
+
+
 }

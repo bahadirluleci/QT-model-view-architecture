@@ -20,7 +20,7 @@ public:
      * @brief Constructor.
      * @param in_p_parent Parent object.
      */
-    explicit ProductDelegate(QObject *in_p_parent = nullptr);
+    explicit ProductDelegate(QObject *in_parent = nullptr);
 
     /**
      * @brief Destructor.
@@ -34,37 +34,10 @@ public:
      * @param in_index Model index for which the editor is created.
      * @return Pointer to the created editor widget.
      */
-    QWidget* createEditor(QWidget *in_p_parent,
+    QWidget* createEditor(QWidget *in_parent,
                           const QStyleOptionViewItem &in_option,
                           const QModelIndex &in_index) const override;
 
-    /**
-     * @brief Sets the editor's contents from the model data.
-     * @param in_p_editor The editor widget.
-     * @param in_index The model index to extract data from.
-     */
-    void setEditorData(QWidget *in_p_editor,
-                       const QModelIndex &in_index) const override;
-
-    /**
-     * @brief Applies the editor's data to the model.
-     * @param in_p_editor The editor widget.
-     * @param in_p_model The target model to write to.
-     * @param in_index The model index to update.
-     */
-    void setModelData(QWidget *in_p_editor,
-                      QAbstractItemModel *in_p_model,
-                      const QModelIndex &in_index) const override;
-
-    /**
-     * @brief Updates the editor's geometry to fit within the cell.
-     * @param in_p_editor The editor widget.
-     * @param in_option Style options.
-     * @param in_index Model index.
-     */
-    void updateEditorGeometry(QWidget *in_p_editor,
-                              const QStyleOptionViewItem &in_option,
-                              const QModelIndex &in_index) const override;
 
     /**
      * @brief Provides the preferred size for a given cell.
@@ -74,6 +47,32 @@ public:
      */
     QSize sizeHint(const QStyleOptionViewItem &in_option,
                    const QModelIndex &in_index) const override;
+
+    /**
+     * @brief Renders the delegate's content (e.g., checkbox) for the specified cell.
+     *
+     * If the current index refers to a checkbox column (e.g., `ProductModel::Column::Value`),
+     * a checkbox is drawn using the data stored in the first column (`ProductId`) as a JSON object.
+     *
+     * @param painter Painter used to render the delegate.
+     * @param option Style options for the item, including rect and state.
+     * @param index The model index for the item being painted.
+     */
+    void paint(QPainter *painter, const QStyleOptionViewItem &in_option, const QModelIndex &in_index) const override;
+
+    /**
+     * @brief Handles mouse events for the delegate (e.g., toggling checkboxes).
+     *
+     * For boolean values, this method toggles the checkbox state based on mouse click inside the cell.
+     * The new state is passed to the model via `setData()` using the `EditRole`.
+     *
+     * @param event The event triggered (e.g., mouse release).
+     * @param model The model associated with the view.
+     * @param option The visual rectangle and state for the cell.
+     * @param index The index being interacted with.
+     * @return true if the event was handled and data updated; otherwise false.
+     */
+    bool editorEvent(QEvent *in_event, QAbstractItemModel *in_model, const QStyleOptionViewItem &in_option, const QModelIndex &in_index) override;
 };
 
 #endif // PRODUCTDELEGATE_H

@@ -1,9 +1,7 @@
 #include "ProductModel.h"
-#include "ProductObject.h"
 #include "Constants.h"
 #include "ProductItem.h"
 #include <QJsonArray>
-
 
 
 ProductModel::ProductModel(QObject *in_p_parent) : QStandardItemModel(in_p_parent)
@@ -22,36 +20,57 @@ void ProductModel::setJson(const QJsonObject &in_product_config)
 
 void ProductModel::importProduct(const QJsonObject &in_product_config)
 {
-    QList<QStandardItem*> product_items_list;
-    product_items_list.append(new ProductItem(ProductItem::Data, QVariant(in_product_config)));
-    product_items_list.append(new ProductItem(Qt::DisplayRole, QVariant()));
-    product_items_list.append(new ProductItem(Qt::DisplayRole, QVariant()));
-    product_items_list.append(new ProductItem(Qt::EditRole, QVariant()));
-    appendRow(product_items_list);
+    auto *idItem      = new ProductItem(ProductItem::Data, in_product_config);
+    auto *nameItem    = new ProductItem(Qt::EditRole, QVariant());
+    auto *priceItem   = new ProductItem(Qt::EditRole, QVariant());
+    auto *valueItem   = new ProductItem(Qt::EditRole, QVariant());
+
+    QList<QStandardItem*> row;
+    row << idItem << nameItem << priceItem << valueItem;
+
+    appendRow(row);
 }
 
-bool ProductModel::setData(const QModelIndex &in_index, const QVariant &in_value, int in_role)
+
+bool ProductModel::setData(const QModelIndex& in_index, const QVariant& in_value, int in_role)
 {
-    if(false == in_index.isValid())
+    if (!in_index.isValid() || in_role != Qt::EditRole)
         return false;
 
-    ProductItem* p_item = static_cast<ProductItem*>(item(in_index.row(),Column::ProductId));
-    QJsonObject product_object = QJsonValue::fromVariant( p_item->data(ProductItem::Data)).toObject();
-    bool value = product_object[qstr(ProductKeys::Product)].toObject()[qstr(ProductKeys::Available)].toBool();
-    bool something_changed = false;
+    // Retrieve the root item holding JSON data (column 0)
+    ProductItem* p_root_item = static_cast<ProductItem*>(item(in_index.row(), Column::ProductId));
+    if (!p_root_item)
+        return false;
 
-    if(in_value.toBool() != value)
-    {
-        p_item->setValue(in_value.toBool());
-        something_changed = true;
+    QJsonObject product_object = QJsonValue::fromVariant(p_root_item->data(ProductItem::Data)).toObject();
+    QJsonObject inner_product = product_object[qstr(ProductKeys::Product)].toObject();
+
+    QString targetKey;
+    switch (in_index.column()) {
+    case Column::ProductName:
+        targetKey = qstr(ProductKeys::ProductName);
+        break;
+    case Column::ProductPrice:
+        targetKey = qstr(ProductKeys::Price);
+        break;
+    case Column::Value:
+        targetKey = qstr(ProductKeys::Available);
+        break;
+    default:
+        return false;
     }
-    if(something_changed)
-    {
-        emit dataChanged(in_index,in_index);
+
+    // Only update if changed
+    if (inner_product[targetKey] != QJsonValue::fromVariant(in_value)) {
+        QString fullPath = QString("%1.%2").arg(qstr(ProductKeys::Product), targetKey);
+        p_root_item->setValue(in_value, fullPath);
+        emit dataChanged(in_index, in_index);
         return true;
     }
+
     return false;
 }
+
 
 QVariant ProductModel::data(const QModelIndex &in_index, int in_role) const
 {
@@ -111,7 +130,6 @@ QVariant ProductModel::headerData(int in_section, Qt::Orientation in_orientation
         }
     }
     return QString("%1").arg(in_section + 1);
-    return QVariant();
 }
 
 
@@ -130,7 +148,6 @@ QJsonObject ProductModel::jsonData() const
     container.insert(qstr(ProductKeys::Comment), "Testdata ");
     container.insert(qstr(ProductKeys::Container), inside_container);
     return container;
-    return QJsonObject();
 }
 
 Qt::ItemFlags ProductModel::flags(const QModelIndex &index) const {

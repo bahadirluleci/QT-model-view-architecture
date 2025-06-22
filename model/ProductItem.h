@@ -53,7 +53,8 @@ public:
      * @brief Modifies the internal value assuming it is a JSON and replaces a bool at a known path.
      * @param value The boolean value to update inside JSON.
      */
-    void setValue(bool value);
+    //void setValue(bool value);
+    void setValue(const QVariant& value, const QString &in_json_path);
 
     /**
      * @brief Modifies a QJsonValue deeply based on the given path.
@@ -62,6 +63,8 @@ public:
      * @param newValue The new value to insert.
      */
     void modifyJsonValue(QJsonValue& destinationValue, const QString& path, const QJsonValue& newValue = QJsonValue());
+
+
 
 private:
     int m_role = Undefined;       ///< Internal role value
