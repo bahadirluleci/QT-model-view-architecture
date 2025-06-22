@@ -1,19 +1,91 @@
-# QT-model-view-architecture
-Model-View-Controller (MVC) is a design pattern originating from Smalltalk that is often used when building user interfaces.
+# Qt Model-View Architecture Example
 
-You can get detailed information from [QT Documentation](https://doc.qt.io/qt-5/model-view-programming.html)
+This project demonstrates a clean and extensible implementation of the **Qt Model-View-Delegate** architecture using `QStandardItemModel`, custom delegates, and JSON-based data binding. It serves as a practical template for building dynamic, editable Qt-based UIs with rich data handling logic.
 
-## Now let's talk about using our own custom model-view widget.
+---
 
-![Untitled](https://user-images.githubusercontent.com/73167603/145189276-9f9712ac-a62c-44e8-aea1-00ba19f1a4ba.png)
+## 🔧 Features
 
-- The purpose of the application is to create a model-view pattern on a QtableView according to the given Json configuration file.
-- On the 4th column formed on QtableView, the use of delegate is also included. 
-- In order for this delegate to change the values, some methods have been added in the delegate and model class.
-- It is allowed to save the Json file in its new format again after the values are changed in the delegate.
+- ✅ **Model-View separation** using `QTableView` and `ProductModel`
+- ✅ **Custom delegate** for checkbox interaction (`ProductDelegate`)
+- ✅ **Data binding to JSON** objects via `ProductItem`
+- ✅ **User-friendly UI** for browsing and loading `.json` configuration files
+- ✅ **Modern C++ practices** (smart pointers, constexpr constants, clean encapsulation)
+- ✅ **Doxygen-ready** class documentation
 
-# Usage of Widget
-- Browse with "Browse... button" releted Json configuration file.
-- Click Load... Button after browse operation. This button connected with load operations and if the file format is correct the file text shows on the QTextEdit.
-- You are ready to go second page. After clicking second page of QTabWidget you can manipulate values in the delegete. The other values are read-only. 
-- After changing values you can save new file with .json extension. To save file go first page and click Save... button.
+---
+
+## 🗂️ Project Structure
+
+```
+QT-model-view-architecture/
+├── delegate/
+│   └── ProductDelegate.{h,cpp}     # Custom rendering and editing behavior
+├── model/
+│   ├── ProductModel.{h,cpp}        # Model logic using QStandardItemModel
+│   ├── ProductItem.{h,cpp}         # Wrapper item for JSON data and roles
+│   └── ProductObject.{h,cpp}       # JSON file parsing and validation
+├── ui/
+│   └── MainWindow.{h,cpp,ui}       # GUI logic and file integration
+├── Constants.h                     # Application-wide string keys
+├── main.cpp                        # Application entry point
+```
+
+---
+
+## 🖥️ Usage
+
+1. Build the project using **Qt Creator** or `CMake` with **Qt 6.x**
+2. Run the application
+3. Click **Browse** to select a `.json` configuration file
+4. Click **Load** to parse and display the data in a table
+5. Toggle checkboxes (e.g., availability) inline
+6. Edits update the underlying JSON model
+
+---
+
+## 📦 Requirements
+
+- Qt 6.x (tested on 6.6+)
+- C++17 or later
+- CMake 3.16+ (if building manually)
+
+---
+
+## 📚 Documentation
+
+Inline Doxygen comments are available for core classes (`ProductItem`, `ProductModel`, `ProductDelegate`, etc.). You can generate HTML documentation with:
+
+```bash
+doxygen Doxyfile
+```
+
+---
+
+## 📁 Example JSON Format
+
+```json
+{
+  "product": {
+    "id": "1234",
+    "name": "Demo Widget",
+    "price": 42,
+    "available": true
+  }
+}
+```
+
+---
+
+## 🧠 Learning Outcomes
+
+- How to structure Qt projects with **Model-View-Delegate** separation
+- How to use `QStandardItem` and custom roles
+- How to integrate JSON into a Qt-based table UI
+- How to extend Qt delegates for interactive widgets like checkboxes
+
+---
+
+## 📃 License
+
+This project is released under the MIT License.

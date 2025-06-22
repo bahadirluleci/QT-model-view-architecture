@@ -66,6 +66,5 @@ bool ProductDelegate::editorEvent(QEvent *in_event, QAbstractItemModel *in_model
 
 QSize ProductDelegate::sizeHint(const QStyleOptionViewItem &in_option, const QModelIndex &in_index) const
 {
-    return QStyledItemDelegate::sizeHint(in_option, in_index).
-        expandedTo(QSize(200,in_option.fontMetrics.height() + 10));
+    return QStyledItemDelegate::sizeHint(in_option, in_index).expandedTo(QSize(200,in_option.fontMetrics.height() + 10));
 }
