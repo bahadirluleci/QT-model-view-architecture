@@ -28,6 +28,10 @@ set(SRC_MODEL
     model/ProductObject.h
 )
 
+set(SRC_HELPERS
+    helpers/Constants.h
+)
+
 set(SRC_VIEW
     view/ProductTableWidget.cpp
     view/ProductTableWidget.h
@@ -40,6 +44,7 @@ set(SRC_DELEGATE
 
 add_executable(${PROJECT_NAME}
     ${SRC_MAIN}
+    ${SRC_HELPERS}
     ${SRC_UI}
     ${SRC_MODEL}
     ${SRC_VIEW}
@@ -55,4 +60,5 @@ target_include_directories(${PROJECT_NAME}
     ${CMAKE_CURRENT_SOURCE_DIR}/model
     ${CMAKE_CURRENT_SOURCE_DIR}/view
     ${CMAKE_CURRENT_SOURCE_DIR}/delegate
+    ${CMAKE_CURRENT_SOURCE_DIR}/helpers
 )

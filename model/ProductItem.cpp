@@ -37,7 +37,7 @@ void ProductItem::setValue(bool in_value) {
     m_value = QVariant(available_value);
 }
 
-/*
+
 //////////////////////////////////////////////////////////////////////////
 ///
 /// \brief      changes old json value in desired json path with new value
@@ -142,9 +142,9 @@ void ProductItem::modifyJsonValue(QJsonValue &in_destination_value, const QStrin
     else
         in_destination_value = in_new_value;
 }
-*/
 
-namespace {
+
+/*namespace {
 
 struct PathToken {
     QString key;
@@ -223,4 +223,4 @@ void ProductItem::modifyJsonValue(QJsonValue& root, const QString& path, const Q
     QJsonValue* target = navigate(root, tokens);
     if (target)
         *target = newValue;
-}
+}*/
