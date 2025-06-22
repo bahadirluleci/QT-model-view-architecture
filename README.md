@@ -69,7 +69,7 @@ doxygen Doxyfile
   "product": {
     "id": "1234",
     "name": "Demo Widget",
-    "price": 42,
+    "price": "42",
     "available": true
   }
 }
